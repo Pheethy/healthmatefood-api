@@ -1,0 +1,21 @@
+# docker-compose.yml
+services:
+  healthmatefood-api: # ตั้งชื่อ service
+    build:
+      context: .
+      dockerfile: Dockerfile # ตำแหน่ง docker file
+    container_name: healthmatefood-api # ตั้งชื่อ container
+    env_file: .env # กำหนด env
+    networks:
+      - default
+    ports:
+      - "8080:8080"
+    image: healthmatefood-api # ตั้งชื่อ image
+    volumes:
+      - .:/go/src/healthmatefood-api
+      - ./tmp:/go/src/healthmatefood-api/tmp
+
+networks:
+  default:
+    external:
+      name: healthmatefood-api # ใช้ชื่อของเครือข่ายที่เราต้องการเชื่อมต่อ

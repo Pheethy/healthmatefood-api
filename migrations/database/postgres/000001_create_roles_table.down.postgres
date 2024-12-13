@@ -1,0 +1,2 @@
+ALTER TABLE "roles" DROP CONSTRAINT IF EXISTS "roles_name_unique";
+DROP TABLE IF EXISTS roles CASCADE;

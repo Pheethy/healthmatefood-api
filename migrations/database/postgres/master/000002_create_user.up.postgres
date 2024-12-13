@@ -1,0 +1,5 @@
+INSERT INTO "users" ("id", "username", "password","firstname", "lastname", "email", "role_id") VALUES
+('1d6ca61e-df77-4b14-91da-e108c781797d', 'customer001', '$2a$10$XDLIFvCVDImPyrsYb3esse7KaYGgQGEPWn1M3yneDo.U/X9D/BCky','custormer', 'test','customer001@healthmatefood.com', 1),
+('47e9b29e-435d-43bc-8aeb-66d61dde0fa9', 'admin001', '$2a$10$XDLIFvCVDImPyrsYb3esse7KaYGgQGEPWn1M3yneDo.U/X9D/BCky','admin', 'test', 'admin001@healthmatefood.com',2),
+('98ba2fe1-95c9-420b-80bd-8e86b3a29a6f', 'pheet', '$2a$10$XDLIFvCVDImPyrsYb3esse7KaYGgQGEPWn1M3yneDo.U/X9D/BCky','karanyaphat', 'pheet', 'pheet@healthmatefood.com', 1);
+--password = pheet1234

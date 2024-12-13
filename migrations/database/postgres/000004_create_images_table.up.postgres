@@ -1,0 +1,10 @@
+CREATE TYPE image_ref_type AS ENUM ('USER', 'PRODUCT');
+CREATE TABLE "images" (
+  "id" uuid NOT NULL UNIQUE PRIMARY KEY DEFAULT uuid_generate_v4(),
+  "filename" VARCHAR NOT NULL,
+  "url" VARCHAR NOT NULL,
+  "ref_id" uuid NOT NULL,
+  "ref_type" image_ref_type NOT NULL DEFAULT 'USER',
+  "created_at" TIMESTAMP NOT NULL DEFAULT now(),
+  "updated_at" TIMESTAMP NOT NULL DEFAULT now()
+);

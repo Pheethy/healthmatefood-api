@@ -1,0 +1,234 @@
+definitions:
+  constants.ErrorResponse:
+    properties:
+      code:
+        example: 400
+        type: integer
+      message:
+        example: Invalid email format
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /v1/user/{user_id}:
+    get:
+      consumes:
+      - application/json
+      description: Get One users
+      parameters:
+      - description: example:257d3552-c186-4c23-aa5d-1ea53f453e2a
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/constants.ErrorResponse'
+      summary: FetchOneUserById
+      tags:
+      - users
+  /v1/user/admin:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Sign-up admin to system with email and password
+      parameters:
+      - description: Username user
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: Email user
+        in: formData
+        name: email
+        required: true
+        type: string
+      - description: Password user
+        in: formData
+        name: password
+        required: true
+        type: string
+      - description: User profile image
+        in: formData
+        name: files
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response" example({"message":"successful","user_id":"uuid-123","username":"john_doe"})
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid email format, duplicate username, or duplicate email
+          schema:
+            $ref: '#/definitions/constants.ErrorResponse'
+        "422":
+          description: Password hashing error
+          schema:
+            $ref: '#/definitions/constants.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/constants.ErrorResponse'
+      summary: SignUpAdmin
+      tags:
+      - users
+  /v1/user/list:
+    get:
+      consumes:
+      - application/json
+      description: Get list users
+      parameters:
+      - description: 'example: john doe'
+        in: query
+        name: search_word
+        type: string
+      - description: 'example: 1'
+        in: query
+        name: page
+        type: integer
+      - description: 'example: 10'
+        in: query
+        name: per_page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/constants.ErrorResponse'
+      summary: FetchAllUsers
+      tags:
+      - users
+  /v1/user/refresh-passport:
+    get:
+      consumes:
+      - application/json
+      description: Refresh user passport
+      parameters:
+      - description: refresh_token
+        in: query
+        name: refresh_token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/constants.ErrorResponse'
+      summary: RefreshUserPassport
+      tags:
+      - users
+  /v1/user/sign-in:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Sign-in to system with email and password
+      parameters:
+      - description: Email user
+        in: formData
+        name: email
+        required: true
+        type: string
+      - description: Password user
+        in: formData
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: password is invalid
+          schema:
+            $ref: '#/definitions/constants.ErrorResponse'
+        "404":
+          description: user not found
+          schema:
+            $ref: '#/definitions/constants.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/constants.ErrorResponse'
+      summary: SignIn
+      tags:
+      - users
+  /v1/user/sign-up:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Sign-up to system with email and password
+      parameters:
+      - description: username user
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: email user
+        in: formData
+        name: email
+        required: true
+        type: string
+      - description: password user
+        in: formData
+        name: password
+        required: true
+        type: string
+      - description: user profile image
+        in: formData
+        name: files
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response" example({"message":"successful","user_id":"uuid-123","username":"john_doe"})
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid email format, duplicate username, or duplicate email
+          schema:
+            $ref: '#/definitions/constants.ErrorResponse'
+        "422":
+          description: Password hashing error
+          schema:
+            $ref: '#/definitions/constants.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/constants.ErrorResponse'
+      summary: SignUp
+      tags:
+      - users
+swagger: "2.0"
