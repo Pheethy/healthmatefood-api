@@ -7,7 +7,7 @@ import (
 	"healthmatefood-api/config"
 	"healthmatefood-api/constants"
 	"healthmatefood-api/models"
-	auth_handler "healthmatefood-api/service/auth/handler"
+	"healthmatefood-api/service/auth"
 	"healthmatefood-api/service/file"
 	"healthmatefood-api/service/user"
 	"healthmatefood-api/utils"
@@ -25,13 +25,15 @@ type userUsecase struct {
 	cfg      config.Iconfig
 	userRepo user.IUserRepository
 	fileUs   file.IFileUsecase
+	authRepo auth.IAuthRepository
 }
 
-func NewUserUsecase(cfg config.Iconfig, userRepo user.IUserRepository, fileUs file.IFileUsecase) user.IUserUsecase {
+func NewUserUsecase(cfg config.Iconfig, userRepo user.IUserRepository, fileUs file.IFileUsecase, authRepo auth.IAuthRepository) user.IUserUsecase {
 	return &userUsecase{
 		cfg:      cfg,
 		userRepo: userRepo,
 		fileUs:   fileUs,
+		authRepo: authRepo,
 	}
 }
 
@@ -50,19 +52,13 @@ func (u *userUsecase) FetchUserPassport(ctx context.Context, req *models.User) (
 	}
 
 	/* New Auth With Access Token */
-	authAccess, err := auth_handler.NewAuthHandler(constants.TokenTypeAccess, u.cfg.Jwt(), user.GetUserClaims())
-	if err != nil {
-		return nil, err
-	}
+	authAccess := u.authRepo.NewAccessToken(user.GetUserClaims())
 	/* New Auth With Refresh Token */
-	authRefresh, err := auth_handler.NewAuthHandler(constants.TokenTypeRefresh, u.cfg.Jwt(), user.GetUserClaims())
-	if err != nil {
-		return nil, err
-	}
+	authRefresh := u.authRepo.NewRefreshToken(user.GetUserClaims())
 
 	/* Insert OAuth */
 	oauth := new(models.OAuth)
-	oauth.SetData(user.Id, authAccess.SignToken(), authRefresh.SignToken())
+	oauth.SetData(user.Id, authAccess, authRefresh)
 	oauth.SetCreatedAt()
 	oauth.SetUpdatedAt()
 	if err := u.userRepo.UpsertOAuth(ctx, oauth); err != nil {
@@ -117,7 +113,7 @@ func (u *userUsecase) UpsertUserInfo(ctx context.Context, userInfo *models.UserI
 
 func (u *userUsecase) RefreshUserPassport(ctx context.Context, refreshToken string) (*models.UserPassport, error) {
 	passport := new(models.UserPassport)
-	token, err := auth_handler.ParseToken(u.cfg.Jwt(), refreshToken)
+	token, err := u.authRepo.ParseToken(refreshToken)
 	if err != nil {
 		return nil, err
 	}
@@ -129,13 +125,11 @@ func (u *userUsecase) RefreshUserPassport(ctx context.Context, refreshToken stri
 	if err != nil {
 		return nil, err
 	}
-	authAccess, err := auth_handler.NewAuthHandler(constants.TokenTypeAccess, u.cfg.Jwt(), user.GetUserClaims())
-	if err != nil {
-		return nil, err
-	}
-	newRefreshToken := auth_handler.RepeatToken(u.cfg.Jwt(), user.GetUserClaims(), token.GetExpiresAt())
+	authAccess := u.authRepo.NewAccessToken(user.GetUserClaims())
+
+	newRefreshToken := u.authRepo.NewAccessTokenWithExpiresAt(user.GetUserClaims(), token.GetExpiresAt())
 	/* Update OAuth */
-	oauth.AccessToken = authAccess.SignToken()
+	oauth.AccessToken = authAccess
 	oauth.RefreshToken = newRefreshToken
 	oauth.SetUpdatedAt()
 	if err := u.userRepo.UpsertOAuth(ctx, oauth); err != nil {

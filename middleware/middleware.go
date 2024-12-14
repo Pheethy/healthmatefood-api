@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 	"healthmatefood-api/config"
+	"healthmatefood-api/service/auth"
 	"net/http"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -23,15 +25,17 @@ type GoMiddlewareInf interface {
 }
 
 type GoMiddleware struct {
-	ctx context.Context
-	cfg config.Iconfig
+	ctx      context.Context
+	cfg      config.Iconfig
+	authRepo auth.IAuthRepository
 }
 
 // InitMiddleware intialize the middleware
-func InitMiddleware(cfg config.Iconfig) GoMiddlewareInf {
+func InitMiddleware(cfg config.Iconfig, authRepo auth.IAuthRepository) GoMiddlewareInf {
 	return &GoMiddleware{
-		ctx: context.TODO(),
-		cfg: cfg,
+		ctx:      context.TODO(),
+		cfg:      cfg,
+		authRepo: authRepo,
 	}
 }
 
@@ -83,6 +87,23 @@ func (m GoMiddleware) Cors() fiber.Handler {
 		ExposeHeaders:    "",
 		MaxAge:           0,
 	})
+}
+
+func (m GoMiddleware) JwtAuth() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		ctx := context.Background()
+		token := strings.TrimPrefix(c.Get("Authorization"), "Bearer ")
+		mapClaims, err := m.authRepo.ParseToken(token)
+		if err != nil {
+			return fiber.NewError(http.StatusUnauthorized, err.Error())
+		}
+		if !m.authRepo.FindAccessToken(ctx, mapClaims.Payload.Id, token) {
+			return fiber.NewError(http.StatusUnauthorized, "no permission to access")
+		}
+		c.Locals("user_id", mapClaims.Payload.Id)
+		c.Locals("role_id", mapClaims.Payload.RoleId)
+		return c.Next()
+	}
 }
 
 func (m GoMiddleware) Logger() fiber.Handler {

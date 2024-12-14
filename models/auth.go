@@ -5,6 +5,7 @@ import (
 
 	"github.com/Pheethy/psql/helper"
 	"github.com/gofrs/uuid"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 type Token struct {
@@ -21,6 +22,15 @@ type UserClaims struct {
 type UserPassport struct {
 	User  *User  `json:"user"`
 	Token *Token `json:"token"`
+}
+
+type MapClaims struct {
+	Payload *UserClaims
+	jwt.RegisteredClaims
+}
+
+func (a *MapClaims) GetExpiresAt() int {
+	return int(a.ExpiresAt.Unix())
 }
 
 type OAuth struct {

@@ -16,12 +16,12 @@ import (
 
 	azureai_repository "healthmatefood-api/service/azureai/repository"
 
-	utils_tracing "healthmatefood-api/utils/opentracing"
-
+	auth_repository "healthmatefood-api/service/auth/repository"
 	user_handler "healthmatefood-api/service/user/http"
 	user_repository "healthmatefood-api/service/user/repository"
 	user_usecase "healthmatefood-api/service/user/usecase"
 	user_validator "healthmatefood-api/service/user/validator"
+	utils_tracing "healthmatefood-api/utils/opentracing"
 
 	file_usecase "healthmatefood-api/service/file/usecase"
 
@@ -71,11 +71,12 @@ func main() {
 	/* Init Repository */
 	userRepo := user_repository.NewUserRepository(psqlDB)
 	azureAIRepo := azureai_repository.NewAzureAIRepository(client, cfg.AzureAI())
+	authRepo := auth_repository.NewAuthRepository(cfg.Jwt(), psqlDB)
 	_ = azureAIRepo
 
 	/* Init Usecase */
 	fileUs := file_usecase.NewFileUsecase(cfg)
-	userUs := user_usecase.NewUserUsecase(cfg, userRepo, fileUs)
+	userUs := user_usecase.NewUserUsecase(cfg, userRepo, fileUs, authRepo)
 
 	/* Init Handler */
 	userHand := user_handler.NewUserHandler(userUs)
@@ -93,7 +94,7 @@ func main() {
 		JSONDecoder:  json.Unmarshal,
 	})
 	/* Init Middleware */
-	middlewareInf := middleware.InitMiddleware(cfg)
+	middlewareInf := middleware.InitMiddleware(cfg, authRepo)
 	/* Setup Middleware */
 	app.Use(middlewareInf.SetTracer())
 	app.Use(middlewareInf.Cors())

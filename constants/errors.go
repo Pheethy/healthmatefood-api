@@ -7,6 +7,7 @@ const (
 	ERROR_EMAIL_PATTERN_IS_INVALID = "email pattern is invalid"
 	ERROR_PASSWORD_IS_INVALID      = "password is invalid"
 	ERROR_OAUTH_NOT_FOUND          = "oauth not found"
+	ERROR_ROLES_NOT_FOUND          = "roles not found"
 )
 
 const (
