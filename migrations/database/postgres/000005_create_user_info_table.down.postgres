@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS user_info CASCADE;
+DROP TYPE IF EXISTS active_level_type;

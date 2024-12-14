@@ -75,6 +75,105 @@
                 }
             }
         },
+        "/v1/user/info": {
+            "post": {
+                "description": "create user info data",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "CreateUserInfo",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "username user",
+                        "name": "user_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "default": 25,
+                        "description": "age user",
+                        "name": "age",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "default": "\"male\"",
+                        "description": "gender user",
+                        "name": "gender",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "default": 1.8,
+                        "description": "height user",
+                        "name": "height",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "default": 80,
+                        "description": "weight user",
+                        "name": "weight",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "default": 80,
+                        "description": "target weight user",
+                        "name": "target_weight",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "default": "\"active\"",
+                        "description": "active level user",
+                        "name": "active_level",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response\" example({\"message\":\"successful\",\"user_id\":\"uuid-123\",\"username\":\"john_doe\"})",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid email format, duplicate username, or duplicate email",
+                        "schema": {
+                            "$ref": "#/definitions/constants.ErrorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Password hashing error",
+                        "schema": {
+                            "$ref": "#/definitions/constants.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/constants.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/user/list": {
             "get": {
                 "description": "Get list users",

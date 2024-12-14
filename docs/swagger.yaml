@@ -85,6 +85,76 @@ paths:
       summary: SignUpAdmin
       tags:
       - users
+  /v1/user/info:
+    post:
+      consumes:
+      - multipart/form-data
+      description: create user info data
+      parameters:
+      - description: username user
+        in: formData
+        name: user_id
+        required: true
+        type: string
+      - default: 25
+        description: age user
+        in: formData
+        name: age
+        required: true
+        type: integer
+      - default: '"male"'
+        description: gender user
+        in: formData
+        name: gender
+        required: true
+        type: string
+      - default: 1.8
+        description: height user
+        in: formData
+        name: height
+        required: true
+        type: number
+      - default: 80
+        description: weight user
+        in: formData
+        name: weight
+        required: true
+        type: number
+      - default: 80
+        description: target weight user
+        in: formData
+        name: target_weight
+        required: true
+        type: number
+      - default: '"active"'
+        description: active level user
+        in: formData
+        name: active_level
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response" example({"message":"successful","user_id":"uuid-123","username":"john_doe"})
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid email format, duplicate username, or duplicate email
+          schema:
+            $ref: '#/definitions/constants.ErrorResponse'
+        "422":
+          description: Password hashing error
+          schema:
+            $ref: '#/definitions/constants.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/constants.ErrorResponse'
+      summary: CreateUserInfo
+      tags:
+      - users
   /v1/user/list:
     get:
       consumes:

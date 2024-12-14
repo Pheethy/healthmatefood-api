@@ -1,0 +1,13 @@
+CREATE TYPE active_level_type AS ENUM ('SEDENTARY', 'MODERATE', 'ACTIVE');
+CREATE TABLE IF NOT EXISTS user_info (
+    id uuid PRIMARY KEY,
+    user_id uuid NOT NULL,
+    age integer NOT NULL,
+    gender varchar(255) NOT NULL,
+    height float NOT NULL,
+    weight float NOT NULL,
+    target_weight float NOT NULL,
+    active_level active_level_type NOT NULL DEFAULT 'SEDENTARY',
+    created_at timestamp NOT NULL,
+    updated_at timestamp NOT NULL
+);

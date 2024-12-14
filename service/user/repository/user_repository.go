@@ -335,6 +335,75 @@ func (u *userRepository) UpsertUser(ctx context.Context, user *models.User) erro
 	return tx.Commit()
 }
 
+func (u *userRepository) UpsertUserInfo(ctx context.Context, userInfo *models.UserInfo) error {
+	tx, err := u.psqlDB.Beginx()
+	if err != nil {
+		return err
+	}
+	sql := `
+    INSERT INTO "user_info" (
+      "id",
+      "user_id",
+      "age",
+      "gender",
+      "height",
+      "weight",
+      "target_weight",
+      "active_level",
+      "created_at",
+      "updated_at"
+    ) VALUES (
+      $1::uuid,
+      $2::uuid,
+      $3::integer,
+      $4::text,
+      $5::float,
+      $6::float,
+      $7::active_level_type,
+      $8::timestamp,
+      $9::timestamp
+    )
+		ON CONFLICT (id)
+		DO UPDATE SET
+      age=$10::integer,
+      gender=$11::text,
+      height=$12::float,
+      weight=$13::float,
+      updated_at=$14::timestamp
+  `
+	stmt, err := tx.PreparexContext(ctx, sql)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.ExecContext(ctx,
+		/* Create */
+		userInfo.Id,
+		userInfo.UserId,
+		userInfo.Age,
+		userInfo.Gender,
+		userInfo.Height,
+		userInfo.Weight,
+		userInfo.TargetWeight,
+		userInfo.ActiveLevel,
+		userInfo.CreatedAt,
+		userInfo.UpdatedAt,
+		/* Update */
+		userInfo.Age,
+		userInfo.Gender,
+		userInfo.Height,
+		userInfo.Weight,
+		userInfo.UpdatedAt,
+	)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit()
+}
+
 func (u *userRepository) UpsertOAuth(ctx context.Context, oauth *models.OAuth) error {
 	tx, err := u.psqlDB.Beginx()
 	if err != nil {

@@ -16,4 +16,5 @@ type IUserRepository interface {
 	UpsertUser(ctx context.Context, user *models.User) error
 	UpsertImages(ctx context.Context, user *models.User) error
 	UpsertOAuth(ctx context.Context, oauth *models.OAuth) error
+	UpsertUserInfo(ctx context.Context, userInfo *models.UserInfo) error
 }

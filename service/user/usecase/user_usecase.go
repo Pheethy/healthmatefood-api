@@ -107,6 +107,10 @@ func (u *userUsecase) UpsertUser(ctx context.Context, user *models.User, isAdmin
 	return nil
 }
 
+func (u *userUsecase) UpsertUserInfo(ctx context.Context, userInfo *models.UserInfo) error {
+	return u.userRepo.UpsertUserInfo(ctx, userInfo)
+}
+
 func (u *userUsecase) RefreshUserPassport(ctx context.Context, refreshToken string) (*models.UserPassport, error) {
 	passport := new(models.UserPassport)
 	token, err := auth_handler.ParseToken(u.cfg.Jwt(), refreshToken)

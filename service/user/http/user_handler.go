@@ -172,6 +172,38 @@ func (u *userHandler) SignIn(c *fiber.Ctx) error {
 	return c.Status(http.StatusOK).JSON(resp)
 }
 
+// @Summary     CreateUserInfo
+// @Description create user info data
+// @Tags        users
+// @Accept      multipart/form-data
+// @Produce     json
+// @Param       user_id formData string true "username user" default:"d5fff3c1-b647-42c1-a177-07e8802df2c3"
+// @Param       age formData integer true "age user" default(25)
+// @Param       gender formData string true "gender user" default("male")
+// @Param       height formData number true "height user" default(1.8)
+// @Param       weight formData number true "weight user" default(80.0)
+// @Param       target_weight formData number true "target weight user" default(80.0)
+// @Param       active_level formData string true "active level user" default("active")
+// @Success     200 {object} map[string]interface{} "Successful response" example({"message":"successful","user_id":"uuid-123","username":"john_doe"})
+// @Failure     400 {object} constants.ErrorResponse "Invalid email format, duplicate username, or duplicate email"
+// @Failure     422 {object} constants.ErrorResponse "Password hashing error"
+// @Failure     500 {object} constants.ErrorResponse "Internal server error"
+// @Router      /v1/user/info [post]
+func (u *userHandler) CreateUserInfo(c *fiber.Ctx) error {
+	ctx := c.UserContext()
+	params := c.Locals("params").(map[string]interface{})
+	userInfo := models.NewUserInfoWithParams(params, nil)
+
+	if err := u.userUs.UpsertUserInfo(ctx, userInfo); err != nil {
+		return fiber.NewError(http.StatusInternalServerError, err.Error())
+	}
+
+	resp := map[string]interface{}{
+		"message": "successful",
+	}
+	return c.Status(http.StatusOK).JSON(resp)
+}
+
 // @Summary     SignUpAdmin
 // @Description Sign-up admin to system with email and password
 // @Tags        users

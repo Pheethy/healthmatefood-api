@@ -158,6 +158,24 @@ func (_m *IUserUsecase) UpsertUser(ctx context.Context, _a1 *models.User, isAdmi
 	return r0
 }
 
+// UpsertUserInfo provides a mock function with given fields: ctx, userInfo
+func (_m *IUserUsecase) UpsertUserInfo(ctx context.Context, userInfo *models.UserInfo) error {
+	ret := _m.Called(ctx, userInfo)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpsertUserInfo")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, *models.UserInfo) error); ok {
+		r0 = rf(ctx, userInfo)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // NewIUserUsecase creates a new instance of IUserUsecase. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewIUserUsecase(t interface {
