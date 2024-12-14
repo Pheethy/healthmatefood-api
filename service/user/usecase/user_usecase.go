@@ -86,6 +86,10 @@ func (u *userUsecase) FetchOneUserById(ctx context.Context, id *uuid.UUID) (*mod
 	return u.userRepo.FetchOneUserById(ctx, id)
 }
 
+func (u *userUsecase) FetchOneUserInfoByUserId(ctx context.Context, userId *uuid.UUID) (*models.UserInfo, error) {
+	return u.userRepo.FetchOneUserInfoByUserId(ctx, userId)
+}
+
 func (u *userUsecase) UpsertUser(ctx context.Context, user *models.User, isAdmin bool, files []*multipart.FileHeader) error {
 	if len(files) > 0 {
 		if err := u.prepareImage(ctx, user, files); err != nil {

@@ -200,6 +200,45 @@ func (u *userRepository) FetchOneOAuthByRefreshToken(ctx context.Context, refres
 	return oauth, nil
 }
 
+func (u *userRepository) FetchOneUserInfoByUserId(ctx context.Context, userId *uuid.UUID) (*models.UserInfo, error) {
+	sql := `
+    SELECT
+      "user_info"."id",
+      "user_info"."user_id",
+      "user_info"."age",
+      "user_info"."gender",
+      "user_info"."height",
+      "user_info"."weight",
+      "user_info"."target_weight",
+      "user_info"."active_level",
+      "user_info"."created_at",
+      "user_info"."updated_at"
+    FROM
+      "user_info"
+    WHERE
+      "user_info"."user_id" = $1::uuid
+  `
+
+	stmt, err := u.psqlDB.PreparexContext(ctx, sql)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.QueryxContext(ctx, userId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	userInfo, err := u.ormOneUserInfo(ctx, rows)
+	if err != nil {
+		return nil, err
+	}
+
+	return userInfo, nil
+}
+
 func (u *userRepository) UpsertImages(ctx context.Context, user *models.User) error {
 	tx, err := u.psqlDB.Beginx()
 	if err != nil {
@@ -359,17 +398,18 @@ func (u *userRepository) UpsertUserInfo(ctx context.Context, userInfo *models.Us
       $4::text,
       $5::float,
       $6::float,
-      $7::active_level_type,
-      $8::timestamp,
-      $9::timestamp
+      $7::float,
+      $8::active_level_type,
+      $9::timestamp,
+      $10::timestamp
     )
-		ON CONFLICT (id)
-		DO UPDATE SET
-      age=$10::integer,
-      gender=$11::text,
-      height=$12::float,
-      weight=$13::float,
-      updated_at=$14::timestamp
+	ON CONFLICT (id)
+	DO UPDATE SET
+      age=$11::integer,
+      gender=$12::text,
+      height=$13::float,
+      weight=$14::float,
+      updated_at=$15::timestamp
   `
 	stmt, err := tx.PreparexContext(ctx, sql)
 	if err != nil {
@@ -491,4 +531,16 @@ func (u *userRepository) ormOneOAuth(ctx context.Context, rows *sqlx.Rows) (*mod
 		return nil, errors.New(constants.ERROR_OAUTH_NOT_FOUND)
 	}
 	return oauths[0], nil
+}
+
+func (u *userRepository) ormOneUserInfo(ctx context.Context, rows *sqlx.Rows) (*models.UserInfo, error) {
+	mapping, err := orm.OrmContext(ctx, new(models.UserInfo), rows, orm.NewMapperOption())
+	if err != nil {
+		return nil, err
+	}
+	userInfo := mapping.GetData().([]*models.UserInfo)
+	if len(userInfo) == 0 {
+		return nil, errors.New(constants.ERROR_OAUTH_NOT_FOUND)
+	}
+	return userInfo[0], nil
 }

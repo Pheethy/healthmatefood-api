@@ -12,6 +12,24 @@ type IUserHandler struct {
 	mock.Mock
 }
 
+// CreateUserInfo provides a mock function with given fields: c
+func (_m *IUserHandler) CreateUserInfo(c *fiber.Ctx) error {
+	ret := _m.Called(c)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateUserInfo")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*fiber.Ctx) error); ok {
+		r0 = rf(c)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // FetchAllUsers provides a mock function with given fields: c
 func (_m *IUserHandler) FetchAllUsers(c *fiber.Ctx) error {
 	ret := _m.Called(c)
@@ -36,6 +54,24 @@ func (_m *IUserHandler) FetchOneUserById(c *fiber.Ctx) error {
 
 	if len(ret) == 0 {
 		panic("no return value specified for FetchOneUserById")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*fiber.Ctx) error); ok {
+		r0 = rf(c)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// FetchOneUserInfoByUserId provides a mock function with given fields: c
+func (_m *IUserHandler) FetchOneUserInfoByUserId(c *fiber.Ctx) error {
+	ret := _m.Called(c)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FetchOneUserInfoByUserId")
 	}
 
 	var r0 error

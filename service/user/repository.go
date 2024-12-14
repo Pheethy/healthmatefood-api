@@ -13,6 +13,7 @@ type IUserRepository interface {
 	FetchOneUserById(ctx context.Context, id *uuid.UUID) (*models.User, error)
 	FetchOneUserByEmail(ctx context.Context, email string) (*models.User, error)
 	FetchOneOAuthByRefreshToken(ctx context.Context, refreshToken string) (*models.OAuth, error)
+	FetchOneUserInfoByUserId(ctx context.Context, userId *uuid.UUID) (*models.UserInfo, error)
 	UpsertUser(ctx context.Context, user *models.User) error
 	UpsertImages(ctx context.Context, user *models.User) error
 	UpsertOAuth(ctx context.Context, oauth *models.OAuth) error

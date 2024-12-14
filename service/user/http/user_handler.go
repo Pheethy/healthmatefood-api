@@ -132,6 +132,20 @@ func (u *userHandler) SignUp(c *fiber.Ctx) error {
 	return c.Status(http.StatusOK).JSON(resp)
 }
 
+func (u *userHandler) FetchOneUserInfoByUserId(c *fiber.Ctx) error {
+	ctx := c.UserContext()
+	userId := uuid.FromStringOrNil(c.Params("user_id"))
+
+	userInfo, err := u.userUs.FetchOneUserInfoByUserId(ctx, &userId)
+	if err != nil {
+		return fiber.NewError(http.StatusInternalServerError, err.Error())
+	}
+	resp := map[string]interface{}{
+		"user_info": userInfo,
+	}
+	return c.Status(http.StatusOK).JSON(resp)
+}
+
 // @Summary     SignIn
 // @Description Sign-in to system with email and password
 // @Tags        users
@@ -193,8 +207,32 @@ func (u *userHandler) CreateUserInfo(c *fiber.Ctx) error {
 	ctx := c.UserContext()
 	params := c.Locals("params").(map[string]interface{})
 	userInfo := models.NewUserInfoWithParams(params, nil)
+	userInfo.NewID()
+	userInfo.SetCreatedAt()
+	userInfo.SetUpdatedAt()
 
 	if err := u.userUs.UpsertUserInfo(ctx, userInfo); err != nil {
+		return fiber.NewError(http.StatusInternalServerError, err.Error())
+	}
+
+	resp := map[string]interface{}{
+		"message": "successful",
+	}
+	return c.Status(http.StatusOK).JSON(resp)
+}
+
+func (u *userHandler) UpdateUserInfo(c *fiber.Ctx) error {
+	ctx := c.UserContext()
+	params := c.Locals("params").(map[string]interface{})
+	userId := uuid.FromStringOrNil(c.Params("user_id"))
+
+	existUserInfo, err := u.userUs.FetchOneUserInfoByUserId(ctx, &userId)
+	if err != nil {
+		return fiber.NewError(http.StatusInternalServerError, err.Error())
+	}
+	newUserInfo := models.NewUserInfoWithParams(params, existUserInfo)
+
+	if err := u.userUs.UpsertUserInfo(ctx, newUserInfo); err != nil {
 		return fiber.NewError(http.StatusInternalServerError, err.Error())
 	}
 

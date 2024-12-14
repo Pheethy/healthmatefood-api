@@ -80,6 +80,36 @@ func (_m *IUserUsecase) FetchOneUserById(ctx context.Context, id *uuid.UUID) (*m
 	return r0, r1
 }
 
+// FetchOneUserInfoByUserId provides a mock function with given fields: ctx, userId
+func (_m *IUserUsecase) FetchOneUserInfoByUserId(ctx context.Context, userId *uuid.UUID) (*models.UserInfo, error) {
+	ret := _m.Called(ctx, userId)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FetchOneUserInfoByUserId")
+	}
+
+	var r0 *models.UserInfo
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *uuid.UUID) (*models.UserInfo, error)); ok {
+		return rf(ctx, userId)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *uuid.UUID) *models.UserInfo); ok {
+		r0 = rf(ctx, userId)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.UserInfo)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *uuid.UUID) error); ok {
+		r1 = rf(ctx, userId)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // FetchUserPassport provides a mock function with given fields: ctx, req
 func (_m *IUserUsecase) FetchUserPassport(ctx context.Context, req *models.User) (*models.UserPassport, error) {
 	ret := _m.Called(ctx, req)
