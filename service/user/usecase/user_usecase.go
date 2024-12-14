@@ -87,6 +87,11 @@ func (u *userUsecase) FetchOneUserById(ctx context.Context, id *uuid.UUID) (*mod
 }
 
 func (u *userUsecase) UpsertUser(ctx context.Context, user *models.User, isAdmin bool, files []*multipart.FileHeader) error {
+	if len(files) > 0 {
+		if err := u.prepareImage(ctx, user, files); err != nil {
+			return err
+		}
+	}
 	switch isAdmin {
 	case true:
 		user.RoleId = constants.USER_ROLE_ADMIN
@@ -96,13 +101,8 @@ func (u *userUsecase) UpsertUser(ctx context.Context, user *models.User, isAdmin
 	if err := u.userRepo.UpsertUser(ctx, user); err != nil {
 		return err
 	}
-	if len(files) > 0 {
-		if err := u.prepareImage(ctx, user, files); err != nil {
-			return err
-		}
-		if err := u.userRepo.UpsertImages(ctx, user); err != nil {
-			return err
-		}
+	if err := u.userRepo.UpsertImages(ctx, user); err != nil {
+		return err
 	}
 	return nil
 }

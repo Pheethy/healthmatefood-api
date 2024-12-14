@@ -236,25 +236,27 @@ func (u *userRepository) UpsertImages(ctx context.Context, user *models.User) er
 		return fmt.Errorf("prepare failed: %v", err.Error())
 	}
 
-	for index := range user.Images {
-		if _, err := stmt.ExecContext(ctx,
-			// create
-			user.Images[index].Id,
-			user.Images[index].FileName,
-			user.Images[index].URL,
-			user.Id,
-			user.Images[index].RefType,
-			user.Images[index].CreatedAt,
-			user.Images[index].UpdatedAt,
-			// update
-			user.Images[index].FileName,
-			user.Images[index].URL,
-			user.Id,
-			user.Images[index].RefType,
-			user.Images[index].UpdatedAt,
-		); err != nil {
-			tx.Rollback()
-			return fmt.Errorf("exec failed: %v", err)
+	if len(user.Images) > 0 {
+		for index := range user.Images {
+			if _, err := stmt.ExecContext(ctx,
+				// create
+				user.Images[index].Id,
+				user.Images[index].FileName,
+				user.Images[index].URL,
+				user.Id,
+				user.Images[index].RefType,
+				user.Images[index].CreatedAt,
+				user.Images[index].UpdatedAt,
+				// update
+				user.Images[index].FileName,
+				user.Images[index].URL,
+				user.Id,
+				user.Images[index].RefType,
+				user.Images[index].UpdatedAt,
+			); err != nil {
+				tx.Rollback()
+				return fmt.Errorf("exec failed: %v", err)
+			}
 		}
 	}
 
