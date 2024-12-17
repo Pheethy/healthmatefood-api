@@ -1,4 +1,5 @@
 CREATE TYPE active_level_type AS ENUM ('SEDENTARY', 'MODERATE', 'ACTIVE');
+
 CREATE TABLE IF NOT EXISTS user_info (
     id uuid PRIMARY KEY,
     user_id uuid NOT NULL,
