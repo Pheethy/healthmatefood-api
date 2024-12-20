@@ -31,8 +31,6 @@ func (u *userRepository) FetchOneUserByEmail(ctx context.Context, email string) 
       "users"."id",
       "users"."username",
       "users"."password",
-      "users"."firstname",
-      "users"."lastname",
       "users"."email",
       "roles"."name" "role",
       "users"."created_at",
@@ -134,15 +132,15 @@ func (u *userRepository) FetchAllUsers(ctx context.Context, args *sync.Map) ([]*
       %s
     FROM
       "users"
-    INNER JOIN
+    LEFT JOIN
       "roles"
     ON
       "users"."role_id" = "roles"."id"
-    INNER JOIN
+    LEFT JOIN
       "images"
     ON
       "images"."ref_id" = "users"."id"
-    WHERE
+    AND
       "images"."ref_type" = 'USER'
   `, orm.GetSelector(models.Image{}))
 
@@ -312,8 +310,6 @@ func (u *userRepository) UpsertUser(ctx context.Context, user *models.User) erro
       "id",
       "username",
       "password",
-      "firstname",
-      "lastname",
       "email",
       "role_id",
       "created_at",
@@ -323,19 +319,15 @@ func (u *userRepository) UpsertUser(ctx context.Context, user *models.User) erro
       $2::text,
       $3::text,
       $4::text,
-      $5::text,
-      $6::text,
-      $7::int,
-      $8::timestamp,
-      $9::timestamp
+      $5::int,
+      $6::timestamp,
+      $7::timestamp
     )
 		ON CONFLICT (id)
 		DO UPDATE SET
-      firstname=$10::text,
-      lastname=$11::text,
-      email=$12::text,
-      password=$13::text,
-      updated_at=$14::timestamp
+      email=$8::text,
+      password=$9::text,
+      updated_at=$10::timestamp
   `
 	stmt, err := tx.PreparexContext(ctx, sql)
 	if err != nil {
@@ -348,15 +340,11 @@ func (u *userRepository) UpsertUser(ctx context.Context, user *models.User) erro
 		user.Id,
 		user.Username,
 		user.Password,
-		user.Firstname,
-		user.Lastname,
 		user.Email,
 		user.RoleId,
 		user.CreatedAt,
 		user.UpdatedAt,
 		/* Update */
-		user.Firstname,
-		user.Lastname,
 		user.Email,
 		user.Password,
 		user.UpdatedAt,
@@ -383,33 +371,43 @@ func (u *userRepository) UpsertUserInfo(ctx context.Context, userInfo *models.Us
     INSERT INTO "user_info" (
       "id",
       "user_id",
-      "age",
+      "firstname",
+      "lastname",
       "gender",
       "height",
       "weight",
+      "target",
       "target_weight",
       "active_level",
+      "dob",
       "created_at",
       "updated_at"
     ) VALUES (
       $1::uuid,
       $2::uuid,
-      $3::integer,
+      $3::text,
       $4::text,
-      $5::float,
+      $5::gender_type,
       $6::float,
       $7::float,
-      $8::active_level_type,
-      $9::timestamp,
-      $10::timestamp
+      $8::target_type,
+      $9::float,
+      $10::active_level_type,
+      $11::timestamp,
+      $12::timestamp,
+      $13::timestamp
     )
 	ON CONFLICT (id)
 	DO UPDATE SET
-      age=$11::integer,
-      gender=$12::text,
-      height=$13::float,
-      weight=$14::float,
-      updated_at=$15::timestamp
+      firstname=$14::text,
+      lastname=$15::text,
+      gender=$16::gender_type,
+      height=$17::float,
+      weight=$18::float,
+      target=$19::target_type,
+      target_weight=$20::float,
+      dob=$21::timestamp,
+      updated_at=$22::timestamp
   `
 	stmt, err := tx.PreparexContext(ctx, sql)
 	if err != nil {
@@ -421,19 +419,29 @@ func (u *userRepository) UpsertUserInfo(ctx context.Context, userInfo *models.Us
 		/* Create */
 		userInfo.Id,
 		userInfo.UserId,
-		userInfo.Age,
+		userInfo.Firstname,
+		userInfo.Lastname,
 		userInfo.Gender,
 		userInfo.Height,
 		userInfo.Weight,
+		userInfo.Weight,
+		userInfo.Target,
 		userInfo.TargetWeight,
 		userInfo.ActiveLevel,
+		userInfo.DOB,
 		userInfo.CreatedAt,
 		userInfo.UpdatedAt,
 		/* Update */
-		userInfo.Age,
+		userInfo.Firstname,
+		userInfo.Lastname,
 		userInfo.Gender,
 		userInfo.Height,
 		userInfo.Weight,
+		userInfo.Weight,
+		userInfo.Target,
+		userInfo.TargetWeight,
+		userInfo.ActiveLevel,
+		userInfo.DOB,
 		userInfo.UpdatedAt,
 	)
 	if err != nil {

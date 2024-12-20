@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS diseases (
+    id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name VARCHAR NOT NULL,
+    description VARCHAR,
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
+    updated_at TIMESTAMP NOT NULL DEFAULT now()
+);
+
+ALTER TABLE diseases ADD CONSTRAINT diseases_name_unique UNIQUE (name);

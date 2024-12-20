@@ -17,8 +17,6 @@ type User struct {
 	TableName struct{}          `json:"-" db:"users" pk:"Id"`
 	Id        *uuid.UUID        `json:"id" db:"id" type:"uuid" example:"U00001"`
 	Username  string            `json:"username" db:"username" type:"string" example:"john_doe"`
-	Firstname string            `json:"firstname" db:"firstname" type:"string"`
-	Lastname  string            `json:"lastname" db:"lastname" type:"string"`
 	Password  string            `json:"-" db:"password" type:"string"`
 	Email     string            `json:"email" db:"email" type:"string"`
 	RoleId    int               `json:"-" db:"role_id" type:"int"`
@@ -42,10 +40,6 @@ func NewUserWithParams(params map[string]interface{}, ptr *User) *User {
 			ptr.Username = cast.ToString(val)
 		case "password":
 			ptr.Password = cast.ToString(val)
-		case "firstname":
-			ptr.Firstname = cast.ToString(val)
-		case "lastname":
-			ptr.Lastname = cast.ToString(val)
 		case "email":
 			ptr.Email = cast.ToString(val)
 		case "created_at":

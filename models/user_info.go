@@ -13,12 +13,15 @@ type UserInfo struct {
 	TableName    struct{}          `json:"-" db:"user_info" pk:"Id"`
 	Id           *uuid.UUID        `json:"id" db:"id" type:"uuid"`
 	UserId       *uuid.UUID        `json:"user_id" db:"user_id" type:"uuid" `
-	Age          int64             `json:"age" db:"age" type:"int64"`
+	Firstname    string            `json:"firstname" db:"firstname" type:"string"`
+	Lastname     string            `json:"lastname" db:"lastname" type:"string"`
 	Gender       string            `json:"gender" db:"gender" type:"string"`
 	Height       float64           `json:"height" db:"height" type:"float64"`
 	Weight       float64           `json:"weight" db:"weight" type:"float64"`
+	Target       string            `json:"target" db:"target" type:"string"`
 	TargetWeight float64           `json:"target_weight" db:"target_weight" type:"float64"`
 	ActiveLevel  string            `json:"active_level" db:"active_level" type:"string"`
+	DOB          *helper.Timestamp `json:"dob" db:"dob" type:"timestamp"`
 	CreatedAt    *helper.Timestamp `json:"created_at" db:"created_at" type:"timestamp"`
 	UpdatedAt    *helper.Timestamp `json:"updated_at" db:"updated_at" type:"timestamp"`
 }
@@ -35,14 +38,18 @@ func NewUserInfoWithParams(params map[string]interface{}, ptr *UserInfo) *UserIn
 		case "user_id":
 			userId := uuid.FromStringOrNil(val.(string))
 			ptr.UserId = &userId
-		case "age":
-			ptr.Age = cast.ToInt64(val)
+		case "firstname":
+			ptr.Firstname = cast.ToString(val)
+		case "lastname":
+			ptr.Lastname = cast.ToString(val)
 		case "gender":
 			ptr.Gender = cast.ToString(val)
 		case "height":
 			ptr.Height = cast.ToFloat64(val)
 		case "weight":
 			ptr.Weight = cast.ToFloat64(val)
+		case "target":
+			ptr.Target = cast.ToString(val)
 		case "target_weight":
 			ptr.TargetWeight = cast.ToFloat64(val)
 		case "active_level":

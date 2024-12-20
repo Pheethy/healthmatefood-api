@@ -1,16 +1,21 @@
 CREATE TYPE active_level_type AS ENUM ('SEDENTARY', 'MODERATE', 'ACTIVE');
+CREATE TYPE target_type AS ENUM ('WEIGHT_LOSS', 'WEIGHT_MAINTAIN', 'WEIGHT_GAIN');
+CREATE TYPE gender_type AS ENUM ('FEMALE', 'MALE');
 
 CREATE TABLE IF NOT EXISTS user_info (
-    id uuid PRIMARY KEY,
+    id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id uuid NOT NULL,
-    age integer NOT NULL,
-    gender varchar(255) NOT NULL,
-    height float NOT NULL,
-    weight float NOT NULL,
-    target_weight float NOT NULL,
+    firstname VARCHAR NOT NULL,
+    lastname VARCHAR NOT NULL,
+    gender gender_type NOT NULL,
+    height FLOAT NOT NULL CHECK (height > 0),
+    weight FLOAT NOT NULL CHECK (weight > 0),
+    target target_type NOT NULL,
+    target_weight FLOAT NOT NULL CHECK (target_weight > 0),
     active_level active_level_type NOT NULL DEFAULT 'SEDENTARY',
-    created_at timestamp NOT NULL,
-    updated_at timestamp NOT NULL
+    dob TIMESTAMP NOT NULL CHECK (dob <= CURRENT_TIMESTAMP),
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
+    updated_at TIMESTAMP NOT NULL DEFAULT now()
 );
 
 ALTER TABLE user_info ADD CONSTRAINT user_info_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id);

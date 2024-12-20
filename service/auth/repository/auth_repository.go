@@ -42,7 +42,6 @@ func (a *authRepository) NewAccessToken(payload *models.UserClaims) string {
 		},
 	}
 	return a.SignToken(mapClaims)
-
 }
 
 func (a *authRepository) NewRefreshToken(payload *models.UserClaims) string {
@@ -95,7 +94,7 @@ func (a *authRepository) NewAccessTokenWithExpiresAt(payload *models.UserClaims,
 	mapClaims := &models.MapClaims{
 		Payload: payload,
 		RegisteredClaims: jwt.RegisteredClaims{
-			Issuer:    "odor-api-auth",
+			Issuer:    "healthmatefood-api",
 			Subject:   "refresh-token",
 			Audience:  []string{"customer", "admin"},
 			ExpiresAt: jwtTimeRepeatAdapter(exp),

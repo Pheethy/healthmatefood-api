@@ -2,8 +2,6 @@ CREATE TABLE "users" (
   "id" uuid NOT NULL UNIQUE PRIMARY KEY DEFAULT uuid_generate_v4(),
   "username" VARCHAR NOT NULL,
   "password" VARCHAR NOT NULL,
-  "firstname" VARCHAR NOT NULL,
-  "lastname" VARCHAR NOT NULL,
   "email" VARCHAR NOT NULL,
   "role_id" INT NOT NULL,
   "created_at" TIMESTAMP NOT NULL DEFAULT now(),

@@ -1,0 +1,22 @@
+#build stage
+FROM golang:1.22-alpine AS build
+WORKDIR /app
+COPY . .
+RUN go mod tidy
+# ระบุ GOARCH=amd64 เพื่อให้รันบน Cloud Run ได้
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /bin/app
+
+#deploy stage
+FROM gcr.io/distroless/static-debian11
+WORKDIR /app
+COPY --from=build /bin/app .
+COPY .env .
+COPY asset/gcp.json asset/gcp.json
+
+#set environment variables
+ENV PORT=8080
+ENV GOOGLE_APPLICATION_CREDENTIALS=/app/asset/gcp.json
+
+EXPOSE 8080
+USER nonroot:nonroot
+ENTRYPOINT ["./app", ".env"]

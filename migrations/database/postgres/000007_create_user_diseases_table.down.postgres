@@ -1,0 +1,3 @@
+ALTER TABLE user_diseases DROP CONSTRAINT IF EXISTS user_diseases_user_info_id_fkey;
+ALTER TABLE user_diseases DROP CONSTRAINT IF EXISTS user_diseases_disease_id_fkey;
+ALTER TABLE user_diseases DROP CONSTRAINT IF EXISTS user_diseases_unique;

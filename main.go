@@ -8,7 +8,6 @@ import (
 	"healthmatefood-api/database"
 	"healthmatefood-api/middleware"
 	"healthmatefood-api/route"
-	"io"
 	"log"
 	"net"
 	"os"
@@ -21,7 +20,6 @@ import (
 	user_repository "healthmatefood-api/service/user/repository"
 	user_usecase "healthmatefood-api/service/user/usecase"
 	user_validator "healthmatefood-api/service/user/validator"
-	utils_tracing "healthmatefood-api/utils/opentracing"
 
 	file_usecase "healthmatefood-api/service/file/usecase"
 
@@ -30,7 +28,6 @@ import (
 	"github.com/Pheethy/sqlx"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/swagger"
-	"github.com/opentracing/opentracing-go"
 	openai "github.com/sashabaranov/go-openai"
 	"github.com/sirupsen/logrus"
 	_ "github.com/swaggo/files"
@@ -53,15 +50,15 @@ func main() {
 	client := openai.NewClientWithConfig(azureConfig)
 
 	/* Init Tracing*/
-	tracer, closer := utils_tracing.Init("healthmatefood-api")
-	defer func(c io.Closer) {
-		if err := c.Close(); err != nil {
-			logrus.Fatal(err)
-		}
-	}(closer)
-	opentracing.SetGlobalTracer(tracer)
+	// tracer, closer := utils_tracing.Init("healthmatefood-api")
+	// defer func(c io.Closer) {
+	// 	if err := c.Close(); err != nil {
+	// 		logrus.Fatal(err)
+	// 	}
+	// }(closer)
+	// opentracing.SetGlobalTracer(tracer)
 	/* Database Connection */
-	psqlDB := database.DBConnect(ctx, cfg.Db(), tracer)
+	psqlDB := database.DBConnect(ctx, cfg.Db(), nil)
 	defer func(sql *sqlx.DB) {
 		if err := sql.Close(); err != nil {
 			logrus.Fatal(err)
