@@ -21,6 +21,8 @@ type UserInfo struct {
 	Target       string            `json:"target" db:"target" type:"string"`
 	TargetWeight float64           `json:"target_weight" db:"target_weight" type:"float64"`
 	ActiveLevel  string            `json:"active_level" db:"active_level" type:"string"`
+	Age          float64           `json:"age" db:"age" type:"float64"`
+	BMR          float64           `json:"bmr" db:"bmr" type:"float64"`
 	DOB          *helper.Timestamp `json:"dob" db:"dob" type:"timestamp"`
 	CreatedAt    *helper.Timestamp `json:"created_at" db:"created_at" type:"timestamp"`
 	UpdatedAt    *helper.Timestamp `json:"updated_at" db:"updated_at" type:"timestamp"`
@@ -93,4 +95,52 @@ func (u *UserInfo) SetCreatedAt() {
 func (u *UserInfo) SetUpdatedAt() {
 	time := helper.NewTimestampFromTime(time.Now())
 	u.UpdatedAt = &time
+}
+
+func (u *UserInfo) GetAge() {
+	currentTime := time.Now()
+	age := currentTime.Year() - u.DOB.YearDay()
+
+	if currentTime.Month() < u.DOB.ToTime().Month() ||
+		(currentTime.Month() == u.DOB.ToTime().Month() && currentTime.Day() < u.DOB.ToTime().Day()) {
+		age--
+	}
+
+	u.Age = float64(age)
+}
+
+func (u *UserInfo) GetBMR() {
+	u.GetAge()
+	if u.Gender == "male" {
+		switch {
+		case u.Age < 3:
+			u.BMR = 59.512*u.Weight - 30.4
+		case u.Age < 10:
+			u.BMR = 22.706*u.Weight + 504.3
+		case u.Age < 18:
+			u.BMR = 17.686*u.Weight + 658.2
+		case u.Age < 30:
+			u.BMR = 15.057*u.Weight + 692.2
+		case u.Age < 60:
+			u.BMR = 11.472*u.Weight + 873.1
+		default:
+			u.BMR = 11.711*u.Weight + 587.7
+		}
+		return
+	}
+
+	switch {
+	case u.Age < 3:
+		u.BMR = 58.317*u.Weight - 31.1
+	case u.Age < 10:
+		u.BMR = 20.315*u.Weight + 485.9
+	case u.Age < 18:
+		u.BMR = 13.384*u.Weight + 692.6
+	case u.Age < 30:
+		u.BMR = 14.818*u.Weight + 486.6
+	case u.Age < 60:
+		u.BMR = 8.126*u.Weight + 845.6
+	default:
+		u.BMR = 9.082*u.Weight + 658.5
+	}
 }

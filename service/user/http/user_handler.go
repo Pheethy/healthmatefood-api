@@ -129,6 +129,7 @@ func (u *userHandler) SignUp(c *fiber.Ctx) error {
 		"user_id":  user.Id,
 		"username": user.Username,
 	}
+
 	return c.Status(http.StatusOK).JSON(resp)
 }
 
@@ -288,6 +289,7 @@ func (u *userHandler) SignUpAdmin(c *fiber.Ctx) error {
 		"user_id":  user.Id,
 		"username": user.Username,
 	}
+
 	return c.Status(http.StatusOK).JSON(resp)
 }
 

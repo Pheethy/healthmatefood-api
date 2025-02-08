@@ -70,6 +70,11 @@ func main() {
 	azureAIRepo := azureai_repository.NewAzureAIRepository(client, cfg.AzureAI())
 	authRepo := auth_repository.NewAuthRepository(cfg.Jwt(), psqlDB)
 	_ = azureAIRepo
+	resp, err := azureAIRepo.GetChatCompletion(context.Background(), "test")
+	if err != nil {
+		log.Println(err)
+	}
+	fmt.Println("resp ai", resp)
 
 	/* Init Usecase */
 	fileUs := file_usecase.NewFileUsecase(cfg)
