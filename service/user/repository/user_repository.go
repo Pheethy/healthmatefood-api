@@ -26,53 +26,7 @@ func NewUserRepository(psqlDB *sqlx.DB) user.IUserRepository {
 	}
 }
 
-func (u *userRepository) FetchOneUserByEmail(ctx context.Context, email string) (*models.User, error) {
-	sql := fmt.Sprintf(`
-    SELECT
-      "users"."id",
-      "users"."username",
-      "users"."password",
-      "users"."email",
-      "roles"."name" "role",
-      "users"."created_at",
-      "users"."updated_at",
-      %s
-    FROM
-      "users"
-    INNER JOIN
-      "roles"
-    ON
-      "users"."role_id" = "roles"."id"
-    LEFT JOIN
-      "images"
-    ON
-      "images"."ref_id" = "users"."id"
-    AND
-      "images"."ref_type" = 'USER'
-    WHERE
-      "users"."email" = $1::text
-  `, orm.GetSelector(models.Image{}))
-	stmt, err := u.psqlDB.PreparexContext(ctx, sql)
-	if err != nil {
-		return nil, err
-	}
-	defer stmt.Close()
-
-	rows, err := stmt.QueryxContext(ctx, email)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	user, err := u.ormOneUser(ctx, rows)
-	if err != nil {
-		return nil, err
-	}
-
-	return user, nil
-}
-
-func (u *userRepository) FetchOneUserById(ctx context.Context, id *uuid.UUID) (*models.User, error) {
+func (u *userRepository) FetchOneUserByEmail(ctx context.Context, email string) (*models.UserSign, error) {
 	sql := `
     SELECT
       to_jsonb("json_data")
@@ -81,6 +35,94 @@ func (u *userRepository) FetchOneUserById(ctx context.Context, id *uuid.UUID) (*
         "users"."id",
         "users"."username",
         "users"."password",
+        "users"."email",
+        "roles"."name" "role",
+        to_char("users"."created_at", 'yyyy-MM-dd HH:mm:ss') "created_at",
+        to_char("users"."updated_at", 'yyyy-MM-dd HH:mm:ss') "updated_at",
+        (
+          SELECT
+            COALESCE(array_to_json(array_agg("IM")), '[]'::json)
+          FROM (
+            SELECT
+              "images"."id",
+              "images"."filename",
+              "images"."url",
+              "images"."ref_id",
+              "images"."ref_type",
+              to_char("users"."created_at", 'yyyy-MM-dd HH:mm:ss') "created_at",
+              to_char("users"."updated_at", 'yyyy-MM-dd HH:mm:ss') "updated_at"
+            FROM
+              "images"
+            WHERE
+              "images"."ref_id" = "users"."id"
+            AND
+              "images"."ref_type" = 'USER'
+          ) AS "IM"
+        ) AS "images",
+        (
+          SELECT
+            to_jsonb("INFO")
+          FROM (
+            SELECT
+              "user_info"."id",
+              "user_info"."user_id",
+              "user_info"."firstname",
+              "user_info"."lastname",
+              "user_info"."gender",
+              "user_info"."height",
+              "user_info"."weight",
+              "user_info"."target",
+              "user_info"."target_weight",
+              "user_info"."active_level",
+              to_char("user_info"."dob", 'yyyy-MM-dd HH:mm:ss') "dob",
+              to_char("user_info"."created_at", 'yyyy-MM-dd HH:mm:ss') "created_at",
+              to_char("user_info"."updated_at", 'yyyy-MM-dd HH:mm:ss') "updated_at"
+            FROM
+              "user_info"
+            INNER JOIN
+              "users"
+            ON
+              "users"."id" = "user_info"."user_id"
+          ) AS "INFO"
+        ) AS "user_info"
+      FROM
+        "users"
+      INNER JOIN
+        "roles"
+      ON
+        "users"."role_id" = "roles"."id"
+      WHERE
+        "users"."email" = $1::text
+    ) AS "json_data"
+  `
+	stmt, err := u.psqlDB.PreparexContext(ctx, sql)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	var jsonData []byte
+	err = stmt.QueryRowxContext(ctx, email).Scan(&jsonData)
+	if err != nil {
+		return nil, err
+	}
+
+	user := new(models.UserSign)
+	if err := json.Unmarshal(jsonData, &user); err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+func (u *userRepository) FetchOneUserById(ctx context.Context, id *uuid.UUID) (*models.UserSign, error) {
+	sql := `
+    SELECT
+      to_jsonb("json_data")
+    FROM (
+      SELECT
+        "users"."id",
+        "users"."username",
         "users"."email",
         "roles"."name" "role",
         to_char("users"."created_at", 'yyyy-MM-dd HH:mm:ss') "created_at",
@@ -148,12 +190,12 @@ func (u *userRepository) FetchOneUserById(ctx context.Context, id *uuid.UUID) (*
 	defer stmt.Close()
 
 	var jsonData []byte
-	err = stmt.GetContext(ctx, &jsonData, id)
+	err = stmt.QueryRowxContext(ctx, id).Scan(&jsonData)
 	if err != nil {
 		return nil, err
 	}
 
-	user := new(models.User)
+	user := new(models.UserSign)
 	if err := json.Unmarshal(jsonData, &user); err != nil {
 		return nil, err
 	}
@@ -163,29 +205,69 @@ func (u *userRepository) FetchOneUserById(ctx context.Context, id *uuid.UUID) (*
 }
 
 func (u *userRepository) FetchAllUsers(ctx context.Context, args *sync.Map) ([]*models.User, error) {
-	sql := fmt.Sprintf(`
+	sql := `
     SELECT
-      "users"."id",
-      "users"."username",
-      "users"."password",
-      "users"."email",
-      "roles"."name" "role",
-      "users"."created_at",
-      "users"."updated_at",
-      %s
-    FROM
-      "users"
-    LEFT JOIN
-      "roles"
-    ON
-      "users"."role_id" = "roles"."id"
-    LEFT JOIN
-      "images"
-    ON
-      "images"."ref_id" = "users"."id"
-    AND
-      "images"."ref_type" = 'USER'
-  `, orm.GetSelector(models.Image{}))
+      COALESCE(array_to_json(array_agg("json_data")), '[]'::json)
+    FROM (
+      SELECT
+        "users"."id",
+        "users"."username",
+        "users"."email",
+        "roles"."name" "role",
+        to_char("users"."created_at", 'yyyy-MM-dd HH:mm:ss') AS "created_at",
+        to_char("users"."updated_at", 'yyyy-MM-dd HH:mm:ss') AS "updated_at",
+        (
+          SELECT
+            COALESCE(array_to_json(array_agg("IM")), '[]'::json)
+          FROM (
+            SELECT
+              "images"."id",
+              "images"."filename",
+              "images"."url",
+              "images"."ref_id",
+              "images"."ref_type",
+              to_char("images"."created_at", 'yyyy-MM-dd HH:mm:ss') "created_at",
+              to_char("images"."updated_at", 'yyyy-MM-dd HH:mm:ss') "updated_at"
+            FROM
+              "images"
+            WHERE
+              "images"."ref_id" = "users"."id"
+            AND
+              "images"."ref_type" = 'USER'
+          ) AS "IM"
+        ) AS "images",
+        (
+          SELECT
+            to_jsonb("INFO")
+          FROM (
+            SELECT
+              "user_info"."id",
+              "user_info"."user_id",
+              "user_info"."firstname",
+              "user_info"."lastname",
+              "user_info"."gender",
+              "user_info"."height",
+              "user_info"."weight",
+              "user_info"."target",
+              "user_info"."target_weight",
+              "user_info"."active_level",
+              to_char("user_info"."dob", 'yyyy-MM-dd HH:mm:ss') "dob",
+              to_char("user_info"."created_at", 'yyyy-MM-dd HH:mm:ss') "created_at",
+              to_char("user_info"."updated_at", 'yyyy-MM-dd HH:mm:ss') "updated_at"
+            FROM
+              "user_info"
+            WHERE
+              "users"."id" = "user_info"."user_id"
+          ) AS "INFO"
+        ) AS "user_info"
+      FROM
+        "users"
+      LEFT JOIN
+        "roles"
+      ON
+        "users"."role_id" = "roles"."id"
+    ) AS "json_data"
+  `
 
 	stmt, err := u.psqlDB.PreparexContext(ctx, sql)
 	if err != nil {
@@ -193,14 +275,14 @@ func (u *userRepository) FetchAllUsers(ctx context.Context, args *sync.Map) ([]*
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.QueryxContext(ctx)
+	var jsonData []byte
+	err = stmt.QueryRowxContext(ctx).Scan(&jsonData)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
 
-	users, err := u.ormAllUser(ctx, rows)
-	if err != nil {
+	users := make([]*models.User, 0)
+	if err := json.Unmarshal(jsonData, &users); err != nil {
 		return nil, err
 	}
 
@@ -209,32 +291,36 @@ func (u *userRepository) FetchAllUsers(ctx context.Context, args *sync.Map) ([]*
 
 func (u *userRepository) FetchOneOAuthByRefreshToken(ctx context.Context, refreshToken string) (*models.OAuth, error) {
 	sql := `
-	SELECT
-		"oauth"."id",
-		"oauth"."user_id",
-		"oauth"."access_token",
-		"oauth"."refresh_token",
-		"oauth"."created_at",
-		"oauth"."updated_at"
-	FROM
-		"oauth"
-	WHERE
-		"oauth"."refresh_token" = $1::text
+    SELECT
+      to_josnb("json_data")
+    FROM (
+      SELECT
+        "oauth"."id",
+        "oauth"."user_id",
+        "oauth"."access_token",
+        "oauth"."refresh_token",
+        "oauth"."created_at",
+        "oauth"."updated_at"
+      FROM
+        "oauth"
+      WHERE
+        "oauth"."refresh_token" = $1::text
+    ) AS "json_data"
 	`
+
 	stmt, err := u.psqlDB.PreparexContext(ctx, sql)
 	if err != nil {
 		return nil, err
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.QueryxContext(ctx, refreshToken)
-	if err != nil {
+	jsonData := make([]byte, 0)
+	if err = stmt.QueryRowxContext(ctx, refreshToken).Scan(&jsonData); err != nil {
 		return nil, err
 	}
-	defer rows.Close()
 
-	oauth, err := u.ormOneOAuth(ctx, rows)
-	if err != nil {
+	oauth := new(models.OAuth)
+	if err := json.Unmarshal(jsonData, &oauth); err != nil {
 		return nil, err
 	}
 
@@ -271,7 +357,7 @@ func (u *userRepository) FetchOneUserInfoByUserId(ctx context.Context, userId *u
 	defer stmt.Close()
 
 	var jsonData []byte
-	err = stmt.GetContext(ctx, &jsonData, userId)
+	err = stmt.QueryRowxContext(ctx, userId).Scan(&jsonData)
 	if err != nil {
 		return nil, err
 	}

@@ -10,8 +10,8 @@ import (
 
 type IUserRepository interface {
 	FetchAllUsers(ctx context.Context, args *sync.Map) ([]*models.User, error)
-	FetchOneUserById(ctx context.Context, id *uuid.UUID) (*models.User, error)
-	FetchOneUserByEmail(ctx context.Context, email string) (*models.User, error)
+	FetchOneUserById(ctx context.Context, id *uuid.UUID) (*models.UserSign, error)
+	FetchOneUserByEmail(ctx context.Context, email string) (*models.UserSign, error)
 	FetchOneOAuthByRefreshToken(ctx context.Context, refreshToken string) (*models.OAuth, error)
 	FetchOneUserInfoByUserId(ctx context.Context, userId *uuid.UUID) (*models.UserInfo, error)
 	UpsertUser(ctx context.Context, user *models.User) error

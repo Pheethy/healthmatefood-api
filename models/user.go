@@ -28,6 +28,21 @@ type User struct {
 	UserInfo *UserInfo `json:"user_info" db:"-" fk:"fk_field1:Id, fk_field2:UserId"`
 }
 
+type UserSign struct {
+	TableName struct{}          `json:"-" db:"users" pk:"Id"`
+	Id        *uuid.UUID        `json:"id" db:"id" type:"uuid" example:"U00001"`
+	Username  string            `json:"username" db:"username" type:"string" example:"john_doe"`
+	Password  string            `json:"password" db:"password" type:"string"`
+	Email     string            `json:"email" db:"email" type:"string"`
+	RoleId    int               `json:"-" db:"role_id" type:"int"`
+	Role      string            `json:"role" db:"role" type:"string"`
+	CreatedAt *helper.Timestamp `json:"created_at" db:"created_at" type:"timestamp"`
+	UpdatedAt *helper.Timestamp `json:"updated_at" db:"updated_at" type:"timestamp"`
+
+	Images   []*Image  `json:"images" db:"-" fk:"fk_field1:Id, fk_field2:RefId"`
+	UserInfo *UserInfo `json:"user_info" db:"-" fk:"fk_field1:Id, fk_field2:UserId"`
+}
+
 func NewUserWithParams(params map[string]interface{}, ptr *User) *User {
 	if ptr == nil {
 		ptr = new(User)
@@ -108,7 +123,7 @@ func (u *User) IsEmail() bool {
 	return match
 }
 
-func (u *User) GetUserClaims() *UserClaims {
+func (u *UserSign) GetUserClaims() *UserClaims {
 	return &UserClaims{
 		Id:     u.Id,
 		RoleId: int64(u.RoleId),

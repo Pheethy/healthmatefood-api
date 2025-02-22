@@ -65,7 +65,17 @@ func (u *userUsecase) FetchUserPassport(ctx context.Context, req *models.User) (
 		return nil, err
 	}
 	/* Set Passport */
-	passport.User = user
+	passport.User = &models.User{
+		Id:        user.Id,
+		Username:  user.Username,
+		Email:     user.Email,
+		RoleId:    user.RoleId,
+		Role:      user.Role,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
+		Images:    user.Images,
+		UserInfo:  user.UserInfo,
+	}
 	passport.Token = &models.Token{
 		OAuthId:      oauth.Id,
 		AccessToken:  oauth.AccessToken,
@@ -79,7 +89,22 @@ func (u *userUsecase) FetchAllUsers(ctx context.Context, args *sync.Map) ([]*mod
 }
 
 func (u *userUsecase) FetchOneUserById(ctx context.Context, id *uuid.UUID) (*models.User, error) {
-	return u.userRepo.FetchOneUserById(ctx, id)
+	userSign, err := u.userRepo.FetchOneUserById(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	user := &models.User{
+		Id:        userSign.Id,
+		Username:  userSign.Username,
+		Email:     userSign.Email,
+		RoleId:    userSign.RoleId,
+		Role:      userSign.Role,
+		CreatedAt: userSign.CreatedAt,
+		UpdatedAt: userSign.UpdatedAt,
+		Images:    userSign.Images,
+		UserInfo:  userSign.UserInfo,
+	}
+	return user, nil
 }
 
 func (u *userUsecase) FetchOneUserInfoByUserId(ctx context.Context, userId *uuid.UUID) (*models.UserInfo, error) {
@@ -136,7 +161,17 @@ func (u *userUsecase) RefreshUserPassport(ctx context.Context, refreshToken stri
 		return nil, err
 	}
 	/* Set Passport */
-	passport.User = user
+	passport.User = &models.User{
+		Id:        user.Id,
+		Username:  user.Username,
+		Email:     user.Email,
+		RoleId:    user.RoleId,
+		Role:      user.Role,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
+		Images:    user.Images,
+		UserInfo:  user.UserInfo,
+	}
 	passport.Token = &models.Token{
 		OAuthId:      oauth.Id,
 		AccessToken:  oauth.AccessToken,
