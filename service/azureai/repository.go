@@ -1,7 +1,11 @@
 package azureai
 
-import "healthmatefood-api/models"
+import (
+	"context"
+	"healthmatefood-api/models"
+)
 
 type IAzureAIRepository interface {
-	GetChatCompletion(prompt string) (*models.AI, error)
+	ConversationWithChat(ctx context.Context, prompt string) (string, error)
+	GetChatCompletion(ctx context.Context, prompt string) (*models.AI, error)
 }

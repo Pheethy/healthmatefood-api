@@ -99,8 +99,10 @@ func (u *UserInfo) SetUpdatedAt() {
 
 func (u *UserInfo) GetAge() {
 	currentTime := time.Now()
-	age := currentTime.Year() - u.DOB.YearDay()
+	// ใช้ Year() แทน YearDay() เพื่อดึงปี
+	age := currentTime.Year() - u.DOB.ToTime().Year()
 
+	// ตรวจสอบว่าถึงวันเกิดในปีนี้หรือยัง
 	if currentTime.Month() < u.DOB.ToTime().Month() ||
 		(currentTime.Month() == u.DOB.ToTime().Month() && currentTime.Day() < u.DOB.ToTime().Day()) {
 		age--
@@ -111,7 +113,7 @@ func (u *UserInfo) GetAge() {
 
 func (u *UserInfo) GetBMR() {
 	u.GetAge()
-	if u.Gender == "male" {
+	if u.Gender == "MALE" {
 		switch {
 		case u.Age < 3:
 			u.BMR = 59.512*u.Weight - 30.4

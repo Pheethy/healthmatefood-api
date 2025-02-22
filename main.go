@@ -57,6 +57,7 @@ func main() {
 	// 	}
 	// }(closer)
 	// opentracing.SetGlobalTracer(tracer)
+
 	/* Database Connection */
 	psqlDB := database.DBConnect(ctx, cfg.Db(), nil)
 	defer func(sql *sqlx.DB) {
@@ -70,11 +71,11 @@ func main() {
 	azureAIRepo := azureai_repository.NewAzureAIRepository(client, cfg.AzureAI())
 	authRepo := auth_repository.NewAuthRepository(cfg.Jwt(), psqlDB)
 	_ = azureAIRepo
-	resp, err := azureAIRepo.GetChatCompletion(context.Background(), "test")
-	if err != nil {
-		log.Println(err)
-	}
-	fmt.Println("resp ai", resp)
+	// resp, err := azureAIRepo.ConversationWithChat(ctx, "สวัสดีจ้าาา")
+	// if err != nil {
+	// 	logrus.Fatal(err)
+	// }
+	// fmt.Println("resp ai", resp)
 
 	/* Init Usecase */
 	fileUs := file_usecase.NewFileUsecase(cfg)

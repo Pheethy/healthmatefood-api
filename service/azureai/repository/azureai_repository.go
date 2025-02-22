@@ -21,6 +21,30 @@ func NewAzureAIRepository(client *openai.Client, cfg config.IAzureAIConfig) *azu
 	}
 }
 
+func (r *azureAIRepository) ConversationWithChat(ctx context.Context, prompt string) (string, error) {
+	request := openai.ChatCompletionRequest{
+		Model: r.cfg.DeploymentName(),
+		Messages: []openai.ChatCompletionMessage{
+			{
+				Role:    openai.ChatMessageRoleUser,
+				Content: prompt,
+			},
+		},
+	}
+
+	resp, err := r.client.CreateChatCompletion(ctx, request)
+	if err != nil {
+		return "", nil
+	}
+
+	var content string
+	if len(resp.Choices) > 0 {
+		content = resp.Choices[0].Message.Content
+	}
+
+	return content, nil
+}
+
 func (r *azureAIRepository) GetChatCompletion(ctx context.Context, prompt string) (*models.AI, error) {
 	resp, err := r.client.CreateChatCompletion(
 		ctx,
@@ -33,13 +57,13 @@ func (r *azureAIRepository) GetChatCompletion(ctx context.Context, prompt string
 				},
 				{
 					Role: openai.ChatMessageRoleSystem,
-					Content: `***Return only json format,this is format 
-          {
-            "user": "pheet",
-            "say": "Why is the sky blue?",
-            "age": 25
-          }
-          `,
+					Content: `***Return only json format,this is format
+				          {
+				            "user": "pheet",
+				            "say": "Why is the sky blue?",
+				            "age": 25
+				          }
+			          `,
 				},
 				{
 					Role:    openai.ChatMessageRoleUser,

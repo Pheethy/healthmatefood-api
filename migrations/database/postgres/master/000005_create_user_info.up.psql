@@ -1,0 +1,2 @@
+INSERT INTO "user_info" ("id", "user_id", "firstname", "lastname", "gender", "height", "weight", "target", "target_weight", "active_level", "dob", "created_at", "updated_at") VALUES
+('f4c6db13-d167-498a-aa9c-ae6cad4382dc', '98ba2fe1-95c9-420b-80bd-8e86b3a29a6f', 'Karanyaphat', 'Chai-otthon', 'MALE', 175.0, 75.5, 'WEIGHT_LOSS', 68.0, 'SEDENTARY', '1995-12-15 11:00:00', '2025-02-22 10:00:00', '2025-02-22 10:00:00');

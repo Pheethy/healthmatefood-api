@@ -24,7 +24,8 @@ type User struct {
 	CreatedAt *helper.Timestamp `json:"created_at" db:"created_at" type:"timestamp"`
 	UpdatedAt *helper.Timestamp `json:"updated_at" db:"updated_at" type:"timestamp"`
 
-	Images []*Image `json:"images" db:"-" fk:"fk_field1:Id, fk_field2:RefId"`
+	Images   []*Image  `json:"images" db:"-" fk:"fk_field1:Id, fk_field2:RefId"`
+	UserInfo *UserInfo `json:"user_info" db:"-" fk:"fk_field1:Id, fk_field2:UserId"`
 }
 
 func NewUserWithParams(params map[string]interface{}, ptr *User) *User {
