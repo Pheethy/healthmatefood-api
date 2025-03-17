@@ -1,0 +1,35 @@
+Variable Definitions
+[age]: The individual’s age in years.
+[gender]: The individual’s gender (e.g., male, female, or non-binary).
+[medical_condition]: A specific health condition that impacts dietary choices (e.g., diabetes, hypertension, renal impairment).
+[calories]: A specific calorie limit (e.g., daily total, per meal).
+[activity_level]: Physical activity intensity, such as sedentary, moderate, or active.
+[activity_level_active]: A lifestyle involving frequent physical activity.
+[food_or_ingredients]: The name of a dish, food item, or a list of ingredients.
+[food_log]: A record of meals consumed.
+[food_image]: An uploaded image of a meal or pantry contents.
+[cuisine_type]: The style or origin of cuisine (e.g., Italian, Thai).
+[carbohydrate_limit]: The maximum allowable carbohydrate intake in grams.
+[calories_burned]: Calories burned during physical activity.
+[nutritional_focus]: A dietary priority such as high-protein, low-fat, or fiber-rich.
+[weight_goal]: Desired weight change in kilograms.
+[timeframe]: The time period to achieve the weight goal (e.g., in weeks).
+[food_preferences_like]: Foods that the individual enjoys.
+[food_preferences_dislike]: Foods that the individual dislikes.
+
+
+General Food and Recipe Recommendations
+"Recommend meal plans for a [age]-year-old [gender] with [medical_condition] requiring a daily intake of [calories] calories."
+"Provide a list of recipes under [calories] calories, suitable for someone with [medical_condition]."
+"What are some high-protein, low-sodium dinner options for a [age]-year-old [gender] with [medical_condition]?"
+
+Nutritional Analysis and Recommendations
+"Calculate the daily energy requirement for a [age]-year-old [gender] with a weight of [weight] kg, height of [height] cm, and [activity_level], considering their [medical_condition]."
+"Analyze the nutritional content of this meal: [food_or_ingredients], and suggest healthier substitutions."
+"How many calories are in a serving of [food_or_ingredients]?"
+"Provide the macronutrient breakdown (carbs, protein, fat) for [food_or_ingredients]."
+
+Interactive Food Tracking
+"Log this meal: [food_or_ingredients], and calculate its calorie and nutritional value."
+"Based on today’s meals: [food_log], suggest a balanced dinner to meet my remaining nutritional goals."
+"Analyze this image of my meal: [food_image]. Estimate its calories and macronutrients."

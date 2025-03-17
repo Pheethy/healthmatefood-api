@@ -1,5 +1,5 @@
 # เริ่มต้นจากหยิบ golang image มาเป็น base image
-FROM golang:1.22-alpine
+FROM golang:1.24-alpine
 # ทำการกำหนด /go/src/flavorparser เป็น path เริ่มต้น
 WORKDIR /go/src/healthmatefood-api
 # Copy source ทั้งหมดจาก directory ปัจจุบันสู่ working directory ภายใน container

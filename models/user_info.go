@@ -9,23 +9,36 @@ import (
 	"github.com/spf13/cast"
 )
 
+type ActiveLevel string
+
+const (
+	sedentary  ActiveLevel = "SEDENTARY"
+	light      ActiveLevel = "LIGHT"
+	moderate   ActiveLevel = "MODERATE"
+	active     ActiveLevel = "ACTIVE"
+	veryActive ActiveLevel = "VERY_ACTIVE"
+)
+
 type UserInfo struct {
-	TableName    struct{}          `json:"-" db:"user_info" pk:"Id"`
-	Id           *uuid.UUID        `json:"id" db:"id" type:"uuid"`
-	UserId       *uuid.UUID        `json:"user_id" db:"user_id" type:"uuid" `
-	Firstname    string            `json:"firstname" db:"firstname" type:"string"`
-	Lastname     string            `json:"lastname" db:"lastname" type:"string"`
-	Gender       string            `json:"gender" db:"gender" type:"string"`
-	Height       float64           `json:"height" db:"height" type:"float64"`
-	Weight       float64           `json:"weight" db:"weight" type:"float64"`
-	Target       string            `json:"target" db:"target" type:"string"`
-	TargetWeight float64           `json:"target_weight" db:"target_weight" type:"float64"`
-	ActiveLevel  string            `json:"active_level" db:"active_level" type:"string"`
-	Age          float64           `json:"age" db:"age" type:"float64"`
-	BMR          float64           `json:"bmr" db:"bmr" type:"float64"`
-	DOB          *helper.Timestamp `json:"dob" db:"dob" type:"timestamp"`
-	CreatedAt    *helper.Timestamp `json:"created_at" db:"created_at" type:"timestamp"`
-	UpdatedAt    *helper.Timestamp `json:"updated_at" db:"updated_at" type:"timestamp"`
+	TableName         struct{}          `json:"-" db:"user_info" pk:"Id"`
+	Id                *uuid.UUID        `json:"id" db:"id" type:"uuid"`
+	UserId            *uuid.UUID        `json:"user_id" db:"user_id" type:"uuid" `
+	Firstname         string            `json:"firstname" db:"firstname" type:"string"`
+	Lastname          string            `json:"lastname" db:"lastname" type:"string"`
+	Gender            string            `json:"gender" db:"gender" type:"string"`
+	Height            float64           `json:"height" db:"height" type:"float64"`
+	Weight            float64           `json:"weight" db:"weight" type:"float64"`
+	Target            string            `json:"target" db:"target" type:"string"`
+	TargetWeight      float64           `json:"target_weight" db:"target_weight" type:"float64"`
+	ActiveLevel       ActiveLevel       `json:"active_level" db:"active_level" type:"string"`
+	Age               float64           `json:"age" db:"age" type:"float64"`
+	BMR               float64           `json:"bmr" db:"bmr" type:"float64"`
+	CaloriesLimit     float64           `json:"calories_limit" db:"calories_limit" type:"float64"`
+	MedicalCondition  string            `json:"medical_condition" db:"medical_condition" type:"string"`
+	FoodOrIngredients []string          `json:"food_or_ingredients" db:"food_or_ingredients" type:"string"`
+	DOB               *helper.Timestamp `json:"dob" db:"dob" type:"timestamp"`
+	CreatedAt         *helper.Timestamp `json:"created_at" db:"created_at" type:"timestamp"`
+	UpdatedAt         *helper.Timestamp `json:"updated_at" db:"updated_at" type:"timestamp"`
 }
 
 func NewUserInfoWithParams(params map[string]interface{}, ptr *UserInfo) *UserInfo {
@@ -55,7 +68,7 @@ func NewUserInfoWithParams(params map[string]interface{}, ptr *UserInfo) *UserIn
 		case "target_weight":
 			ptr.TargetWeight = cast.ToFloat64(val)
 		case "active_level":
-			ptr.ActiveLevel = cast.ToString(val)
+			ptr.ActiveLevel = ActiveLevel(cast.ToString(val))
 		case "created_at":
 			if val != nil {
 				if reflect.TypeOf(val).Kind() == reflect.String {
@@ -74,6 +87,16 @@ func NewUserInfoWithParams(params map[string]interface{}, ptr *UserInfo) *UserIn
 				} else if reflect.TypeOf(val).String() == "time.Time" {
 					timestamp := helper.NewTimestampFromTime(val.(time.Time))
 					ptr.UpdatedAt = &timestamp
+				}
+			}
+		case "dob":
+			if val != nil {
+				if reflect.TypeOf(val).Kind() == reflect.String {
+					timestamp := helper.NewTimestampFromString(val.(string))
+					ptr.DOB = &timestamp
+				} else if reflect.TypeOf(val).String() == "time.Time" {
+					timestamp := helper.NewTimestampFromTime(val.(time.Time))
+					ptr.DOB = &timestamp
 				}
 			}
 		}
@@ -109,6 +132,23 @@ func (u *UserInfo) GetAge() {
 	}
 
 	u.Age = float64(age)
+}
+
+func (u *UserInfo) GetCaloriesLimit() {
+	switch u.ActiveLevel {
+	case "SEDENTARY":
+		u.CaloriesLimit = u.BMR * 1.2
+	case "LIGHT":
+		u.CaloriesLimit = u.BMR * 1.375
+	case "MODERATE":
+		u.CaloriesLimit = u.BMR * 1.55
+	case "ACTIVE":
+		u.CaloriesLimit = u.BMR * 1.725
+	case "VERY_ACTIVE":
+		u.CaloriesLimit = u.BMR * 1.9
+	default:
+		u.CaloriesLimit = u.BMR * 1.2
+	}
 }
 
 func (u *UserInfo) GetBMR() {

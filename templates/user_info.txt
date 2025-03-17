@@ -1,0 +1,10 @@
+General Food and Recipe Recommendations
+"Recommend meal plans for a {{.Age}}-year-old {{.Gender}} with {{.MedicalCondition}} requiring a daily intake of {{.CaloriesLimit}} calories."
+"Provide a list of recipes under {{.CaloriesLimit}} calories, suitable for someone with {{.MedicalCondition}}."
+"What are some high-protein, low-sodium dinner options for a {{.Age}}-year-old {{.Gender}} with {{.MedicalCondition}}?"
+
+Nutritional Analysis and Recommendations
+"Calculate the daily energy requirement for a {{.Age}}-year-old {{.Gender}} with a weight of {{.Weight}} kg, height of {{.Height}} cm, and {{.ActiveLevel}}, considering their {{.MedicalCondition}}."
+"Analyze the nutritional content of this meal: {{.FoodOrIngredients}}, and suggest healthier substitutions."
+"How many calories are in a serving of {{.FoodOrIngredients}}?"
+"Provide the macronutrient breakdown (carbs, protein, fat) for {{.FoodOrIngredients}}."

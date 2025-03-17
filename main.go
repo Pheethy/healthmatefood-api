@@ -13,14 +13,15 @@ import (
 	"os"
 	"os/signal"
 
-	azureai_repository "healthmatefood-api/service/azureai/repository"
-
 	auth_repository "healthmatefood-api/service/auth/repository"
 	user_handler "healthmatefood-api/service/user/http"
 	user_repository "healthmatefood-api/service/user/repository"
 	user_usecase "healthmatefood-api/service/user/usecase"
 	user_validator "healthmatefood-api/service/user/validator"
 
+	agent_ai_handler "healthmatefood-api/service/agent-ai/http"
+	agetn_ai_repository "healthmatefood-api/service/agent-ai/repository"
+	agent_ai_usecase "healthmatefood-api/service/agent-ai/usecase"
 	file_usecase "healthmatefood-api/service/file/usecase"
 
 	_ "healthmatefood-api/docs"
@@ -28,7 +29,6 @@ import (
 	"github.com/Pheethy/sqlx"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/swagger"
-	openai "github.com/sashabaranov/go-openai"
 	"github.com/sirupsen/logrus"
 	_ "github.com/swaggo/files"
 	"google.golang.org/grpc"
@@ -45,18 +45,6 @@ func envPath() string {
 func main() {
 	ctx := context.Background()
 	cfg := config.LoadConfig(envPath())
-	azureConfig := openai.DefaultAzureConfig(cfg.AzureAI().AzureAPIKey(), cfg.AzureAI().AzureEndpoint())
-	azureConfig.APIVersion = cfg.AzureAI().APIVersion()
-	client := openai.NewClientWithConfig(azureConfig)
-
-	/* Init Tracing*/
-	// tracer, closer := utils_tracing.Init("healthmatefood-api")
-	// defer func(c io.Closer) {
-	// 	if err := c.Close(); err != nil {
-	// 		logrus.Fatal(err)
-	// 	}
-	// }(closer)
-	// opentracing.SetGlobalTracer(tracer)
 
 	/* Database Connection */
 	psqlDB := database.DBConnect(ctx, cfg.Db(), nil)
@@ -68,21 +56,17 @@ func main() {
 
 	/* Init Repository */
 	userRepo := user_repository.NewUserRepository(psqlDB)
-	azureAIRepo := azureai_repository.NewAzureAIRepository(client, cfg.AzureAI())
+	agentAIRepo := agetn_ai_repository.NewAgentAIRepository(cfg.Agent())
 	authRepo := auth_repository.NewAuthRepository(cfg.Jwt(), psqlDB)
-	_ = azureAIRepo
-	// resp, err := azureAIRepo.ConversationWithChat(ctx, "สวัสดีจ้าาา")
-	// if err != nil {
-	// 	logrus.Fatal(err)
-	// }
-	// fmt.Println("resp ai", resp)
 
 	/* Init Usecase */
 	fileUs := file_usecase.NewFileUsecase(cfg)
 	userUs := user_usecase.NewUserUsecase(cfg, userRepo, fileUs, authRepo)
+	agentAIUs := agent_ai_usecase.NewAgentAIUsecase(agentAIRepo)
 
 	/* Init Handler */
 	userHand := user_handler.NewUserHandler(userUs)
+	agentAIHandler := agent_ai_handler.NewAgentAIHandler(agentAIUs, userUs)
 
 	/* Init Validate */
 	userValidate := user_validator.Validation{}
@@ -113,6 +97,7 @@ func main() {
 	router := app.Group("/v1")
 	r := route.NewRoute(router)
 	r.RegisterUser(userHand, userValidate)
+	r.RegisterAgentAI(agentAIHandler)
 
 	/* Graceful Shutdown */
 	c := make(chan os.Signal, 1)

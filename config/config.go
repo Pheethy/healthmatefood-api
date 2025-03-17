@@ -119,22 +119,20 @@ func LoadConfig(path string) Iconfig {
 				return ex
 			}(),
 		},
-		azureAI: &azureAI{
-			azureAPIKey:    envMap["AZURE_OPENAI_API_KEY"],
-			azureEndpoint:  envMap["AZURE_OPENAI_ENDPOINT"],
-			deploymentName: envMap["AZURE_DEPLOYMENT_NAME"],
-			apiVersion:     envMap["AZURE_API_VERSION"],
+		agent: &agent{
+			agentAccessKey: envMap["AGENT_ACCESS_KEY"],
+			agentEndpoint:  envMap["AGENT_ENDPOINT"],
 		},
 	}
 }
 
 // Struct
 type config struct {
-	app     *app
-	db      *db
-	jwt     *jwt
-	gRPC    *gRPC
-	azureAI *azureAI
+	app   *app
+	db    *db
+	jwt   *jwt
+	gRPC  *gRPC
+	agent *agent
 }
 
 // Port Interface
@@ -143,7 +141,7 @@ type Iconfig interface {
 	Db() IDbConfig
 	Jwt() IJwtConfig
 	GRPC() IgRPCConfig
-	AzureAI() IAzureAIConfig
+	Agent() IAgentConfig
 }
 
 func (c *config) App() IAppConfig {
@@ -301,36 +299,24 @@ func (g *gRPC) AuthTimeOut() int {
 	return g.authTimeOut
 }
 
-type IAzureAIConfig interface {
-	AzureAPIKey() string
-	AzureEndpoint() string
-	DeploymentName() string
-	APIVersion() string
+func (c *config) Agent() IAgentConfig {
+	return c.agent
 }
 
-type azureAI struct {
-	azureAPIKey    string
-	azureEndpoint  string
-	deploymentName string
-	apiVersion     string
+type IAgentConfig interface {
+	AgentAccessKey() string
+	AgentEndpoint() string
 }
 
-func (c *config) AzureAI() IAzureAIConfig {
-	return c.azureAI
+type agent struct {
+	agentAccessKey string
+	agentEndpoint  string
 }
 
-func (a *azureAI) AzureAPIKey() string {
-	return a.azureAPIKey
+func (a *agent) AgentAccessKey() string {
+	return a.agentAccessKey
 }
 
-func (a *azureAI) AzureEndpoint() string {
-	return a.azureEndpoint
-}
-
-func (a *azureAI) DeploymentName() string {
-	return a.deploymentName
-}
-
-func (a *azureAI) APIVersion() string {
-	return a.apiVersion
+func (a *agent) AgentEndpoint() string {
+	return a.agentEndpoint
 }

@@ -1,6 +1,7 @@
 package route
 
 import (
+	agent_ai_handler "healthmatefood-api/service/agent-ai"
 	"healthmatefood-api/service/user"
 	user_validator "healthmatefood-api/service/user/validator"
 
@@ -27,4 +28,8 @@ func (r *Route) RegisterUser(handler user.IUserHandler, validator user_validator
 	r.e.Post("/user/refresh", handler.RefreshUserPassport)
 	r.e.Post("/user/info", handler.CreateUserInfo)
 	r.e.Put("/user/info/:user_id", handler.UpdateUserInfo)
+}
+
+func (r *Route) RegisterAgentAI(handler agent_ai_handler.IAgentAIHandler) {
+	r.e.Post("/agent-ai/meals", handler.GenerateMealsPlan)
 }
