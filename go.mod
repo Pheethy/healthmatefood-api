@@ -7,7 +7,6 @@ require (
 	github.com/Pheethy/psql v0.0.0-20241205083314-80168e02b16f
 	github.com/Pheethy/sqlx v0.0.0-20231210055214-27a66acd90b2
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
-	github.com/go-resty/resty/v2 v2.16.5
 	github.com/gofiber/fiber/v2 v2.52.6
 	github.com/gofiber/swagger v1.1.1
 	github.com/gofrs/uuid v4.4.0+incompatible
@@ -16,6 +15,7 @@ require (
 	github.com/jackc/pgx/v5 v5.7.2
 	github.com/joho/godotenv v1.5.1
 	github.com/joncalhoun/qson v0.0.0-20200422171543-84433dcd3da0
+	github.com/line/line-bot-sdk-go v7.8.0+incompatible
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cast v1.7.1
