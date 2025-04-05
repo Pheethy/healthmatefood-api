@@ -34,6 +34,8 @@ spec:
               value: "n8n"
             - name: GENERIC_TIMEZONE
               value: "Asia/Bangkok"
+            - name: N8N_SECURE_COOKIE
+              value: "false"
 
 ---
 apiVersion: v1
